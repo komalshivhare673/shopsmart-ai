@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShopSmart AI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f7fb;
+      color: #222;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 25px;
+      border-radius: 18px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 0;
+      color: #d1d5db;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 15px;
+      margin-bottom: 7px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #111827;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #374151;
+    }
+
+    .result {
+      display: none;
+    }
+
+    .product {
+      border: 1px solid #e5e7eb;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 12px;
+      background: #fafafa;
+    }
+
+    .product h3 {
+      margin: 0 0 7px;
+    }
+
+    .price {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .reason {
+      color: #4b5563;
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      background: #e5e7eb;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>🛍️ ShopSmart AI</h1>
+    <p>Personalized shopping recommendations</p>
+  </header>
+
+  <div class="card">
+
+    <h2>Find the right product</h2>
+
+    <label>What are you looking for?</label>
+    <select id="category">
+      <option value="phone">Smartphone</option>
+      <option value="laptop">Laptop</option>
+      <option value="headphones">Headphones</option>
+      <option value="watch">Smart Watch</option>
+    </select>
+
+    <label>Your Budget (₹)</label>
+    <input type="number" id="budget" placeholder="Example: 20000">
+
+    <label>What matters most to you?</label>
+    <select id="priority">
+      <option value="value">Best Value</option>
+      <option value="performance">Performance</option>
+      <option value="budget">Lowest Price</option>
+    </select>
+
+    <button onclick="recommend()">Get AI Recommendations</button>
+
+  </div>
+
+  <div class="card result" id="result">
+
+    <h2>✨ Personalized Recommendations</h2>
+
+    <div id="recommendations"></div>
+
+  </div>
+
+</div>
+
+<script>
+
+const products = [
+
+  {
+    name: "ValuePhone X",
+    category: "phone",
+    price: 14999,
+    performance: 7
+  },
+
+  {
+    name: "ProPhone 12",
+    category: "phone",
+    price: 19999,
+    performance: 9
+  },
+
+  {
+    name: "SmartPhone Lite",
+    category: "phone",
+    price: 9999,
+    performance: 6
+  },
+
+  {
+    name: "StudyBook 14",
+    category: "laptop",
+    price: 34999,
+    performance: 7
+  },
+
+  {
+    name: "PowerBook Pro",
+    category: "laptop",
+    price: 49999,
+    performance: 10
+  },
+
+  {
+    name: "BudgetBook",
+    category: "laptop",
+    price: 27999,
+    performance: 6
+  },
+
+  {
+    name: "SoundMax Pro",
+    category: "headphones",
+    price: 4999,
+    performance: 9
+  },
+
+  {
+    name: "BassBeat",
+    category: "headphones",
+    price: 2499,
+    performance: 7
+  },
+
+  {
+    name: "EasySound",
+    category: "headphones",
+    price: 1499,
+    performance: 6
+  },
+
+  {
+    name: "FitWatch Pro",
+    category: "watch",
+    price: 7999,
+    performance: 9
+  },
+
+  {
+    name: "ActiveWatch",
+    category: "watch",
+    price: 4999,
+    performance: 8
+  },
+
+  {
+    name: "SmartWatch Lite",
+    category: "watch",
+    price: 2999,
+    performance: 6
+  }
+
+];
+
+
+function recommend() {
+
+  const category = document.getElementById("category").value;
+
+  const budget = Number(document.getElementById("budget").value);
+
+  const priority = document.getElementById("priority").value;
+
+  const result = document.getElementById("result");
+
+  const recommendations =
+    document.getElementById("recommendations");
+
+
+  if (!budget || budget <= 0) {
+
+    alert("Please enter your budget.");
+
+    return;
+
+  }
+
+
+  let matches = products.filter(product =>
+
+    product.category === category &&
+    product.price <= budget
+
+  );
+
+
+  if (matches.length === 0) {
+
+    recommendations.innerHTML =
+      "<p>No product found within your budget. Try increasing your budget.</p>";
+
+    result.style.display = "block";
+
+    return;
+
+  }
+
+
+  matches.sort((a,b) => {
+
+    if (priority === "performance") {
+
+      return b.performance - a.performance;
+
+    }
+
+    if (priority === "budget") {
+
+      return a.price - b.price;
+
+    }
+
+    return (b.performance / b.price) -
+           (a.performance / a.price);
+
+  });
+
+
+  const topProducts = matches.slice(0,3);
+
+
+  recommendations.innerHTML = "";
+
+
+  topProducts.forEach((product, index) => {
+
+    const percentage =
+      Math.round((product.price / budget) * 100);
+
+    let reason = "";
+
+    if (priority === "performance") {
+
+      reason =
+        "Recommended because it offers strong performance within your budget.";
+
+    } else if (priority === "budget") {
+
+      reason =
+        "Recommended because it keeps your spending lower.";
+
+    } else {
+
+      reason =
+        "Recommended because it provides a good balance of price and performance.";
+
+    }
+
+
+    recommendations.innerHTML += `
+
+      <div class="product">
+
+        <h3>${index + 1}. ${product.name}</h3>
+
+        <div class="price">
+          ₹${product.price.toLocaleString()}
+        </div>
+
+        <div class="reason">
+          ${reason}
+        </div>
+
+        <span class="badge">
+          Performance: ${product.performance}/10
+        </span>
+
+        <span class="badge">
+          Uses ${percentage}% of your budget
+        </span>
+
+      </div>
+
+    `;
+
+  });
+
+
+  result.style.display = "block";
+
+}
+
+</script>
+
+</body>
+  </html>
